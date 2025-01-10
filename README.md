@@ -1,7 +1,9 @@
 # Proyecto CRM
 
-El cliente pide un programa para cargar de manera masiva clientes en el CRM del banco.
-La documentación de la API del CRM se encuentra en https://www.concordcrm.com/docs/api/1.x/
+El cliente pide un programa para cargar de manera masiva clientes en el CRM del banco.La documentación de la API del CRM se encuentra en https://www.concordcrm.com/docs/api/1.x/
+
+
+Los datos del CSV se generan en esta pagina https://www.mockaroo.com/
 
 El CSV de carga debe solicitar los siguientes campos:
 
