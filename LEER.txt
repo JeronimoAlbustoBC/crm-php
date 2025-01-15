@@ -1,15 +1,12 @@
 # El cliente pide un programa para cargar de manera masiva clientes en el CRM del banco.
 # La documentación de la API del CRM se encuentra en https://www.concordcrm.com/docs/api/1.x/
 # El CSV de carga debe solicitar los siguientes campos:
-"Nombre";"Nombre de dominio de la empresa";"Dirección de correo electrónico";"Sector";"Teléfono";
-"Tags";"Fuente";"Dirección";"Ciudad";"Estado/Región";"Código postal";"País";"Propietario";"Nota";"CUIT PJ";"Contactos"
-# Debes almacenar un log de lo cargado, fecha, hora, cantidad de registros.
-# Debe tener una grilla de visualización de lo cargado y botón de confirmación de lo que va a subir
-
-
 "Nombre";"Nombre de dominio de la empresa";"Dirección de correo electrónico";"Sector";"Teléfono";"Tags";"Dirección";"Ciudad";"Estado/Región";
 "Código postal";"Propietario";"Nota";"CUIT PJ";"Contactos"
 
+
+# Debes almacenar un log de lo cargado, fecha, hora, cantidad de registros. propietario
+# Debe tener una grilla de visualización de lo cargado y botón de confirmación de lo que va a subir
 
 
 
@@ -23,3 +20,69 @@ cargar archivo por ip y confirmar archivo por ip
 debe crear una carpeta con año y mes, donde se guarde un log 
 
 tabla log donde guardar id 
+
+
+carpeta -> archivos_cargados -> 2025-01
+
+
+
+
+
+"Nombre";"Nombre de dominio de la empresa";"Dirección de correo electrónico";"Sector";"Teléfono";
+"Tags";"Fuente";"Dirección";"Ciudad";"Estado/Región";"Código postal";"País";"Propietario";"Nota";"CUIT PJ";"Contactos"
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE clientes_pre (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255),
+    dominio_empresa VARCHAR(255),
+    email VARCHAR(255),
+    sector VARCHAR(255),
+    telefono VARCHAR(50),
+    tags TEXT,
+    direccion VARCHAR(255),
+    ciudad VARCHAR(255),
+    estado_region VARCHAR(255),
+    codigo_postal VARCHAR(50),
+    propietario VARCHAR(255),
+    nota TEXT,
+    cuit_pj VARCHAR(50),
+    contactos TEXT,
+    aprobado BOOLEAN DEFAULT 0,
+    fecha_carga TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    cantidad INT,
+    propietario VARCHAR(255)
+);
+
+
+
+
+"Nombre";                                          name  company-name
+"Nombre de dominio de la empresa";                 domain_name domain-name
+"Dirección de correo electrónico";                 email eamil
+"Sector";                                          industry industry
+"Teléfono";                                        phone  phone
+"Tags";                                            tags industry
+"Dirección";                                       address street-address
+"Ciudad";                                          city city
+"Estado/Región";                                   state state
+"Código postal";                                   zip_code postal-code
+"Propietario";                                     owner full-name
+"Nota";                                            note number
+"CUIT PJ";                                         cuit_pj number
+"Contactos"                                        contact full-name
+
