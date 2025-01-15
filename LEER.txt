@@ -86,3 +86,28 @@ CREATE TABLE logs (
 "CUIT PJ";                                         cuit_pj number
 "Contactos"                                        contact full-name
 
+
+CREATE TABLE crm.pre_clients (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  company_name varchar(255) DEFAULT NULL,
+  domain_name varchar(255) DEFAULT NULL,
+  email varchar(255) DEFAULT NULL,
+  industry varchar(255) DEFAULT NULL,
+  phone varchar(50) DEFAULT NULL,
+  tags text DEFAULT NULL,
+  address varchar(255) DEFAULT NULL,
+  city varchar(255) DEFAULT NULL,
+  state varchar(255) DEFAULT NULL,
+  zip_code varchar(50) DEFAULT NULL,
+  owner varchar(255) DEFAULT NULL,
+  note text DEFAULT NULL,
+  cuit_pj varchar(50) DEFAULT NULL,
+  contact text DEFAULT NULL,
+  approved tinyint(1) DEFAULT 0,
+  upload_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+)
+ENGINE = MYISAM,
+CHARACTER SET latin1,
+CHECKSUM = 0,
+COLLATE latin1_swedish_ci;
