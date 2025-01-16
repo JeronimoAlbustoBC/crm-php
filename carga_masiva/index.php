@@ -60,13 +60,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: whitesmoke;
             z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
+            font-size: 3rem;
+            font-weight: 700;
         }
 
         .hidden {
@@ -91,7 +92,7 @@
                 <!-- Archivo CSV -->
                 <div class="flex items-center space-x-4">
                     <input type="file" name="csvFile" accept=".csv" class="px-4 py-2 border rounded" required>
-                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-blue-600">Cargar CSV</button>
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-900">Cargar CSV</button>
                 </div>
             </div>
         </form>
@@ -102,7 +103,7 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="table-header">
                     <tr>
-                        <th class="px-4 py-2 border">Seleccionar</th>
+                        <th class="px-4 py-2 border">Select</th>
                         <th class="px-4 py-2 border">Company Name</th>
                         <th class="px-4 py-2 border">Domain Name</th>
                         <th class="px-4 py-2 border">Email</th>
@@ -131,8 +132,8 @@
 
         <!-- Botones de acción -->
         <div id="actionButtons" class="mt-4 space-x-4 hidden">
-            <button id="selectAll" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Seleccionar Todos</button>
-            <button id="approveUpload" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Aprobar Carga</button>
+            <button id="selectAll" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Seleccionar Todos</button>
+            <button id="approveUpload" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-900">Aprobar Carga</button>
         </div>
 
         <!-- Alertas -->
