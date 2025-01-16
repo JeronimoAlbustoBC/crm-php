@@ -18,8 +18,6 @@
 
         /* Estilo para el contenedor de la tabla */
         .table-container {
-            display: flex;
-            align-items: center;
             border: 1px solid #e5e7eb;
             border-radius: 0.375rem;
             overflow: hidden;
