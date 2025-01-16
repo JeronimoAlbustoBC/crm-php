@@ -1,4 +1,4 @@
-# Proyecto CRM
+# Proyecto CRM con api
 
 El cliente pide un programa para cargar de manera masiva clientes en el CRM del banco.La documentación de la API del CRM se encuentra en https://www.concordcrm.com/docs/api/1.x/
 
@@ -10,7 +10,7 @@ El CSV de carga debe solicitar los siguientes campos:
 "Nombre";
 
 "Nombre de dominio de la empresa";
-
+0
 "Dirección de correo electrónico";
 
 "Sector";
@@ -37,6 +37,8 @@ El CSV de carga debe solicitar los siguientes campos:
 
 Debes almacenar un log de lo cargado, fecha, hora, cantidad de registros.Debe tener una grilla de visualización de lo cargado y botón de confirmación de lo que va a subir
 
+
+## Dev: Jeronimo Albusto
 
 ## Tecnologias
 
