@@ -143,6 +143,8 @@
     <!-- Indicador de carga -->
     <div id="loading" class="hidden">Cargando, por favor espere...</div>
 
+<!-- scripts de animaciones y carga de tablas, y modals -->
+
     <script>
         let selectedRows = {};
         let csvData = [];
@@ -192,7 +194,6 @@
             // Función para renderizar la tabla con los datos
             function renderTable(data) {
                 const tableBody = $('#csvDataTable');
-                tableBody.empty();
                 data.forEach((row, index) => {
                     const tr = $('<tr></tr>');
                     tr.append(`<td class="px-4 py-2 border"><input type="checkbox" data-index="${index}" class="selectRow"></td>`);
