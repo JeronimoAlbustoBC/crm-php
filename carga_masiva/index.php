@@ -4,17 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Carga Masiva CRM</title>
-     <!-- cdn de tailwind css -->
+    <!-- cdn de tailwind css -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- cdn jquery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- estilos css -->
     <style>
         /* Estilo para permitir desplazamiento solo en el cuerpo de la tabla */
         #csvDataTableWrapper {
             max-height: 500px;
             overflow-y: auto;
         }
-        
 
         /* Estilo para el contenedor de la tabla */
         .table-container {
@@ -27,9 +27,11 @@
         th,
         td {
             padding: 0.5rem;
-            white-space: nowrap; /* Evitar salto de línea */
+            white-space: nowrap;
+            /* Evitar salto de línea */
             overflow: hidden;
-            border: 1px solid #ddd; /* Bordes de las celdas */
+            border: 1px solid #ddd;
+            /* Bordes de las celdas */
             min-width: 150px;
         }
 
@@ -40,18 +42,19 @@
         }
 
         th {
-            background-color: #f3f4f6; /* Fondo más claro para el encabezado */
+            background-color: #f3f4f6;
+            /* Fondo más claro para el encabezado */
         }
 
         td {
-            background-color: #ffffff; /* Fondo blanco para las celdas */
+            background-color: #ffffff;
+            /* Fondo blanco para las celdas */
         }
 
         /* Bordes entre las filas */
         tbody tr:nth-child(even) {
             background-color: #f9fafb;
         }
-
 
         /* Indicador de carga */
         #loading {
@@ -70,6 +73,7 @@
             font-weight: 700;
         }
 
+        /* Oculta elementos */
         .hidden {
             visibility: hidden;
         }
@@ -136,6 +140,17 @@
             <button id="approveUpload" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-900">Aprobar Carga</button>
         </div>
 
+        <!-- Modal de confirmación -->
+        <div id="confirmModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+            <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+                <h3 class="text-xl font-bold mb-4">&iquest; Seguro que desea aprobar la carga &quest;</h3>
+                <div class="flex justify-between">
+                    <button id="confirmYes" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-900">SI</button>
+                    <button id="confirmNo" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-900">NO</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Alertas -->
         <div id="alertContainer" class="mt-4"></div>
     </div>
@@ -143,23 +158,23 @@
     <!-- Indicador de carga -->
     <div id="loading" class="hidden">Cargando, por favor espere...</div>
 
-<!-- scripts de animaciones y carga de tablas, y modals -->
+    <!-- scripts de animaciones y carga de tablas, y modals -->
 
     <script>
         let selectedRows = {};
         let csvData = [];
         let fileName = '';
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Manejar carga de archivo
-            $('#uploadForm').on('submit', function(e) {
+            $('#uploadForm').on('submit', function (e) {
                 e.preventDefault();
                 const formData = new FormData(this);
                 fileName = $('input[type="file"]').val().split('\\').pop();
 
                 // Mostrar indicador de carga
-                $('#loading').removeClass('hidden'); // Mostrar el div de carga
-                $('#actionButtons').addClass('hidden'); // Esconde los botones de acción mientras cargamos la tabla
+                $('#loading').removeClass('hidden');
+                $('#actionButtons').addClass('hidden');
 
                 $.ajax({
                     url: 'process.php',
@@ -167,7 +182,7 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
+                    success: function (response) {
                         try {
                             const data = JSON.parse(response);
                             if (data.error) {
@@ -181,10 +196,10 @@
                             showAlert('Error al procesar la respuesta del servidor', 'error');
                         }
                     },
-                    error: function() {
+                    error: function () {
                         showAlert('Error al procesar el archivo', 'error');
                     },
-                    complete: function() {
+                    complete: function () {
                         // Ocultar indicador de carga después de la respuesta
                         $('#loading').addClass('hidden');
                     }
@@ -214,7 +229,8 @@
                     tableBody.append(tr);
                 });
 
-                $('.selectRow').change(function() {
+                // selecciona las filas que desea cargar
+                $('.selectRow').change(function () {
                     const rowIndex = $(this).data('index');
                     if (this.checked) {
                         selectedRows[rowIndex] = true;
@@ -225,13 +241,51 @@
                 });
             }
 
+            // actualizar las filas seleccionadas
             function updateTableSelection() {
-                $('.selectRow').each(function() {
+                $('.selectRow').each(function () {
                     const rowIndex = $(this).data('index');
                     this.checked = selectedRows[rowIndex] !== undefined;
                 });
             }
 
+            // Función para seleccionar o desmarcar todas las filas
+            $('#selectAll').click(function () {
+                const allSelected = Object.keys(selectedRows).length === csvData.length;
+                if (allSelected) {
+                    selectedRows = {}; // Desmarcar todas
+                } else {
+                    csvData.forEach((_, index) => {
+                        selectedRows[index] = true; // Marcar todas
+                    });
+                }
+                updateTableSelection();
+            });
+
+            // Aprobar carga de datos
+            $('#approveUpload').click(function () {
+                // Mostrar modal de confirmación
+                $('#confirmModal').removeClass('hidden');
+            });
+
+            // Confirmar la acción en el modal
+            $('#confirmYes').click(function () {
+                if (Object.keys(selectedRows).length > 0) {
+                    showAlert('Carga aprobada para las filas seleccionadas', 'success');
+                } else {
+                    showAlert('No se ha seleccionado ninguna fila para aprobar', 'error');
+                }
+                // Cerrar el modal
+                $('#confirmModal').addClass('hidden');
+            });
+
+            // Cancelar la acción en el modal
+            $('#confirmNo').click(function () {
+                // Cerrar el modal
+                $('#confirmModal').addClass('hidden');
+            });
+
+            // Mostrar alerta
             function showAlert(message, type) {
                 const alertContainer = $('#alertContainer');
                 alertContainer.empty();
