@@ -1,298 +1,205 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Carga Masiva CRM</title>
-    <!-- cdn de tailwind css -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- cdn jquery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- estilos css -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargar Clientes</title>
+    <script>
+        // funcion para marcar todas las filas
+        function checkAll() {
+            let checkboxes = document.querySelectorAll('.checkbox_client');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+        }
+
+        // funcion para desmarcar todas las filas
+        function unCheckAll() {
+            let checkboxes = document.querySelectorAll('.checkbox_client');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+    </script>
     <style>
-        /* Estilo para permitir desplazamiento solo en el cuerpo de la tabla */
-        #csvDataTableWrapper {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        /* Estilo para el contenedor de la tabla */
-        .table-container {
-            border: 1px solid #e5e7eb;
-            border-radius: 0.375rem;
-            overflow: hidden;
-        }
-
-        /* Estilo para las celdas de la tabla */
-        th,
-        td {
-            padding: 0.5rem;
-            white-space: nowrap;
-            /* Evitar salto de línea */
-            overflow: hidden;
-            border: 1px solid #ddd;
-            /* Bordes de las celdas */
-            min-width: 150px;
-        }
-
-        /* Asegurar que las celdas del encabezado y del cuerpo tengan el mismo ancho */
-        table {
-            table-layout: fixed;
-            width: 100%;
-        }
-
-        th {
-            background-color: #f3f4f6;
-            /* Fondo más claro para el encabezado */
-        }
-
-        td {
-            background-color: #ffffff;
-            /* Fondo blanco para las celdas */
-        }
-
-        /* Bordes entre las filas */
-        tbody tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-
-        /* Indicador de carga */
-        #loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: whitesmoke;
-            z-index: 9999;
+        /* Alinear los botones en una sola fila */
+        .botones-marcado {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 3rem;
-            font-weight: 700;
-        }
-
-        /* Oculta elementos */
-        .hidden {
-            visibility: hidden;
+            gap: 10px;
         }
     </style>
 </head>
 
-<body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-6">Carga Masiva de Clientes CRM</h1>
+<body>
+    <h1>Cargar Clientes</h1>
+    <form id="form" method="POST" enctype="multipart/form-data">
+        <label for="name">Name:</label>
+        <input type="text" name="name" required>
+        <label for="lastname">Lastname:</label>
+        <input type="text" name="lastname" required>
+        <label for="csvFile">Seleccionar archivo CSV:</label>
+        <input type="file" name="csvFile" id="csvFile" accept=".csv" required>
+        <br><br>
+        <input type="submit" name="submitFile" value="Subir CSV">
+    </form>
 
-        <!-- Formulario de carga -->
-        <form id="uploadForm" class="mb-8" enctype="multipart/form-data">
-            <div class="flex flex-col space-y-4">
-                <!-- Nombre y Apellido -->
-                <div class="flex items-center space-x-4">
-                    <input type="text" name="userFirstName" placeholder="Nombre" class="px-4 py-2 border rounded" required>
-                    <input type="text" name="userLastName" placeholder="Apellido" class="px-4 py-2 border rounded" required>
-                </div>
+    <?php
+    // Función para verificar si el archivo .CSV es correcto
+    function validateCSV($file)
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file);
+        finfo_close($finfo);
+        return $mimeType === 'text/plain' || $mimeType === 'application/vnd.ms-excel';
+    }
 
-                <!-- Archivo CSV -->
-                <div class="flex items-center space-x-4">
-                    <input type="file" name="csvFile" accept=".csv" class="px-4 py-2 border rounded" required>
-                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-900">Cargar CSV</button>
-                </div>
-            </div>
-        </form>
+    if (isset($_POST['submitFile'])) {
+        // Validación del archivo .CSV
+        if (!isset($_FILES['csvFile']) || $_FILES['csvFile']['error'] != 0) {
+            echo "<script>alert('Error al subir el archivo. Intente de nuevo.');</script>";
+            exit;
+        }
 
-        <!-- Tabla de visualización -->
-        <div class="table-container">
-            <!-- Encabezado de la tabla -->
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="table-header">
-                    <tr>
-                        <th class="px-4 py-2 border">Select</th>
-                        <th class="px-4 py-2 border">Company Name</th>
-                        <th class="px-4 py-2 border">Domain Name</th>
-                        <th class="px-4 py-2 border">Email</th>
-                        <th class="px-4 py-2 border">Industry</th>
-                        <th class="px-4 py-2 border">Phone</th>
-                        <th class="px-4 py-2 border">Tags</th>
-                        <th class="px-4 py-2 border">Address</th>
-                        <th class="px-4 py-2 border">City</th>
-                        <th class="px-4 py-2 border">State</th>
-                        <th class="px-4 py-2 border">Zip Code</th>
-                        <th class="px-4 py-2 border">Owner</th>
-                        <th class="px-4 py-2 border">Note</th>
-                        <th class="px-4 py-2 border">Cuit PJ</th>
-                        <th class="px-4 py-2 border">Contact</th>
-                    </tr>
-                </thead>
-            </table>
+        // Comprobar si el archivo es un .CSV correcto
+        $file = $_FILES['csvFile']['tmp_name'];
+        if (!validateCSV($file)) {
+            echo "<script>alert('El archivo no es válido. Asegúrese de subir un archivo CSV.');</script>";
+            exit;
+        }
 
-            <!-- Cuerpo de la tabla con desplazamiento -->
-            <div id="csvDataTableWrapper">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <tbody class="bg-white divide-y divide-gray-200" id="csvDataTable"></tbody>
-                </table>
-            </div>
-        </div>
+        // Procesar el archivo .CSV
+        $csv = file_get_contents($file);
+        $rows = explode("\n", $csv);
+        $clients = [];
 
-        <!-- Botones de acción -->
-        <div id="actionButtons" class="mt-4 space-x-4 hidden">
-            <button id="selectAll" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Seleccionar Todos</button>
-            <button id="approveUpload" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-900">Aprobar Carga</button>
-        </div>
+        // Saltar la primera fila (encabezado- titulo)
+        array_shift($rows);
 
-        <!-- Modal de confirmación -->
-        <div id="confirmModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-            <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-                <h3 class="text-xl font-bold mb-4">&iquest; Seguro que desea aprobar la carga &quest;</h3>
-                <div class="flex justify-between">
-                    <button id="confirmYes" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-900">SI</button>
-                    <button id="confirmNo" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-900">NO</button>
-                </div>
-            </div>
-        </div>
+        foreach ($rows as $row) {
+            // se asegura de no procesar filas vacías
+            if (trim($row) != "") {
+                $clients[] = str_getcsv($row, ',');  // .CSV con separador por ,
+            }
+        }
 
-        <!-- Alertas -->
-        <div id="alertContainer" class="mt-4"></div>
-    </div>
+        // Mostrar la tabla con los clientes
+        if (count($clients) > 0) {
+            echo "<h2>Clientes Cargados</h2>";
+            echo "<form method='POST'>";
+            echo "<input type='hidden' name='name' value='" . htmlspecialchars($_POST['name']) . "'>";
+            echo "<input type='hidden' name='lastname' value='" . htmlspecialchars($_POST['lastname']) . "'>";
+            echo "<table border='1'>";
+            echo "<thead>
+            <tr>
+            <th>select</th>
+            <th>company name</th>
+            <th>domain name</th>
+            <th>email</th>
+            <th>industry</th>
+            <th>phone</th>
+            <th>tags</th>
+            <th>address</th>
+            <th>city</th>
+            <th>state</th>
+            <th>postal code</th>
+            <th>owner</th>
+            <th>note</th>
+            <th>cuit pj</th>
+            <th>contact</th>
+            </tr></thead>
+            <tbody>";
 
-    <!-- Indicador de carga -->
-    <div id="loading" class="hidden">Cargando, por favor espere...</div>
-
-    <!-- scripts de animaciones y carga de tablas, y modals -->
-
-    <script>
-        let selectedRows = {};
-        let csvData = [];
-        let fileName = '';
-
-        $(document).ready(function () {
-            // Manejar carga de archivo
-            $('#uploadForm').on('submit', function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                fileName = $('input[type="file"]').val().split('\\').pop();
-
-                // Mostrar indicador de carga
-                $('#loading').removeClass('hidden');
-                $('#actionButtons').addClass('hidden');
-
-                $.ajax({
-                    url: 'process.php',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        try {
-                            const data = JSON.parse(response);
-                            if (data.error) {
-                                showAlert(data.error, 'error');
-                            } else {
-                                csvData = data;
-                                renderTable(data);
-                                $('#actionButtons').removeClass('hidden'); // Mostrar botones de acción cuando la tabla se ha cargado
-                            }
-                        } catch (e) {
-                            showAlert('Error al procesar la respuesta del servidor', 'error');
-                        }
-                    },
-                    error: function () {
-                        showAlert('Error al procesar el archivo', 'error');
-                    },
-                    complete: function () {
-                        // Ocultar indicador de carga después de la respuesta
-                        $('#loading').addClass('hidden');
-                    }
-                });
-            });
-
-            // Función para renderizar la tabla con los datos
-            function renderTable(data) {
-                const tableBody = $('#csvDataTable');
-                data.forEach((row, index) => {
-                    const tr = $('<tr></tr>');
-                    tr.append(`<td class="px-4 py-2 border"><input type="checkbox" data-index="${index}" class="selectRow"></td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.company_name}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.domain_name}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.email}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.industry}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.phone}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.tags}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.address}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.city}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.state}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.zip_code}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.owner}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.note}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.cuit_pj}</td>`);
-                    tr.append(`<td class="px-4 py-2 border">${row.contact}</td>`);
-                    tableBody.append(tr);
-                });
-
-                // selecciona las filas que desea cargar
-                $('.selectRow').change(function () {
-                    const rowIndex = $(this).data('index');
-                    if (this.checked) {
-                        selectedRows[rowIndex] = true;
-                    } else {
-                        delete selectedRows[rowIndex];
-                    }
-                    updateTableSelection();
-                });
+            foreach ($clients as $index => $client) {
+                echo "<tr><td><input type='checkbox' class='checkbox_client' name='clients[]' value='$index'></td>";
+                echo "<td>" . htmlspecialchars($client[1]) . "</td>"; // company_name
+                echo "<td>" . htmlspecialchars($client[2]) . "</td>"; // domain_name
+                echo "<td>" . htmlspecialchars($client[3]) . "</td>"; // email
+                echo "<td>" . htmlspecialchars($client[4]) . "</td>"; // industry
+                echo "<td>" . htmlspecialchars($client[5]) . "</td>"; // phone
+                echo "<td>" . htmlspecialchars($client[6]) . "</td>"; // tags
+                echo "<td>" . htmlspecialchars($client[7]) . "</td>"; // address
+                echo "<td>" . htmlspecialchars($client[8]) . "</td>"; // city
+                echo "<td>" . htmlspecialchars($client[9]) . "</td>"; // state
+                echo "<td>" . htmlspecialchars($client[10]) . "</td>"; // postal code
+                echo "<td>" . htmlspecialchars($client[11]) . "</td>"; // owner
+                echo "<td>" . htmlspecialchars($client[12]) . "</td>"; // note
+                echo "<td>" . htmlspecialchars($client[13]) . "</td>"; // cuit pj
+                echo "<td>" . htmlspecialchars($client[14]) . "</td>"; // contact
+                echo "</tr>";
             }
 
-            // actualizar las filas seleccionadas
-            function updateTableSelection() {
-                $('.selectRow').each(function () {
-                    const rowIndex = $(this).data('index');
-                    this.checked = selectedRows[rowIndex] !== undefined;
-                });
-            }
+            echo "</tbody></table>";
 
-            // Función para seleccionar o desmarcar todas las filas
-            $('#selectAll').click(function () {
-                const allSelected = Object.keys(selectedRows).length === csvData.length;
-                if (allSelected) {
-                    selectedRows = {}; // Desmarcar todas
-                } else {
-                    csvData.forEach((_, index) => {
-                        selectedRows[index] = true; // Marcar todas
-                    });
-                }
-                updateTableSelection();
-            });
+            // Botones de marcar/desmarcar clientes
+            echo "<div class='botones-marcado'>
+                    <input type='button' value='Marcar Todos' onclick='checkAll()'>
+                    <input type='button' value='Desmarcar Todos' onclick='unCheckAll()'>
+                  </div>";
 
-            // Aprobar carga de datos
-            $('#approveUpload').click(function () {
-                // Mostrar modal de confirmación
-                $('#confirmModal').removeClass('hidden');
-            });
+            echo "<br><br><input type='submit' name='loadClients' value='Cargar Clientes'>";
+            echo "</form>";
+        } else {
+            echo "<script>alert('El archivo no contiene datos válidos.');</script>";
+        }
+    }
+    ?>
 
-            // Confirmar la acción en el modal
-            $('#confirmYes').click(function () {
-                if (Object.keys(selectedRows).length > 0) {
-                    showAlert('Carga aprobada para las filas seleccionadas', 'success');
-                } else {
-                    showAlert('No se ha seleccionado ninguna fila para aprobar', 'error');
-                }
-                // Cerrar el modal
-                $('#confirmModal').addClass('hidden');
-            });
+<?php
+if (isset($_POST['loadClients'])) {
+    $clientSelec = isset($_POST['clients']) ? $_POST['clients'] : [];
+    $name = htmlspecialchars($_POST['name']);      // Nombre del usuario
+    $lastname = htmlspecialchars($_POST['lastname']); // Apellido del usuario
 
-            // Cancelar la acción en el modal
-            $('#confirmNo').click(function () {
-                // Cerrar el modal
-                $('#confirmModal').addClass('hidden');
-            });
+    if (!empty($clientSelec) && is_array($clientSelec)) {
+        // Crear directorio de logs si no existe
+        $logDirectory = 'logs/' . date('Y/m');
+        if (!file_exists($logDirectory)) {
+            mkdir($logDirectory, 0777, true);
+        }
 
-            // Mostrar alerta
-            function showAlert(message, type) {
-                const alertContainer = $('#alertContainer');
-                alertContainer.empty();
-                const alertClass = type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                alertContainer.append(`<div class="px-4 py-2 ${alertClass} rounded">${message}</div>`);
-            }
-        });
-    </script>
+        // Crear el archivo de log con la fecha y hora actual
+        $logFile = $logDirectory . '/log_' . date('d-m-Y_H-i-s') . '.txt';
+        $logContent = "Fecha: " . date('Y-m-d H:i:s') . "\n";
+        $logContent .= "Cantidad de registros: " . count($clientSelec) . "\n";
+        $logContent .= "Propietario: " . $_SERVER['REMOTE_ADDR'] . "\n\n";
+        $logContent .= "Nombre: " . $name . "\n";
+        $logContent .= "Apellido: " . $lastname . "\n\n";
+
+        // Iterar sobre los clientes seleccionados
+        foreach ($clientSelec as $index) {
+            $client = $clients[$index]; // Obtener la fila del cliente correspondiente
+            
+            // Aquí agregamos los detalles de cada cliente seleccionado al archivo de log
+            $logContent .= "Nombre de la Empresa: " . htmlspecialchars($client[0]) . "\n"; // company_name
+            $logContent .= "Dominio: " . htmlspecialchars($client[1]) . "\n"; // domain_name
+            $logContent .= "Email: " . htmlspecialchars($client[2]) . "\n"; // email
+            $logContent .= "Sector: " . htmlspecialchars($client[3]) . "\n"; // industry
+            $logContent .= "Teléfono: " . htmlspecialchars($client[4]) . "\n"; // phone
+            $logContent .= "Tags: " . htmlspecialchars($client[5]) . "\n"; // tags
+            $logContent .= "Dirección: " . htmlspecialchars($client[6]) . "\n"; // address
+            $logContent .= "Ciudad: " . htmlspecialchars($client[7]) . "\n"; // city
+            $logContent .= "Estado/Región: " . htmlspecialchars($client[8]) . "\n"; // state
+            $logContent .= "Código Postal: " . htmlspecialchars($client[9]) . "\n"; // postal code
+            $logContent .= "Propietario: " . htmlspecialchars($client[10]) . "\n"; // owner
+            $logContent .= "Nota: " . htmlspecialchars($client[11]) . "\n"; // note
+            $logContent .= "CUIT PJ: " . htmlspecialchars($client[12]) . "\n"; // cuit pj
+            $logContent .= "Contactos: " . htmlspecialchars($client[13]) . "\n\n"; // contact
+        }
+
+        // Intentar escribir el contenido en el archivo
+        if (file_put_contents($logFile, $logContent) !== false) {
+            echo "<script>alert('Subida de clientes exitosa. Código 200 OK');</script>";
+        } else {
+            echo "<script>alert('Error al escribir el archivo de log.');</script>";
+        }
+    } else {
+        echo "<script>alert('No se seleccionaron clientes para cargar o los datos no son válidos.');</script>";
+    }
+}
+?>
+
+
 </body>
 
 </html>
