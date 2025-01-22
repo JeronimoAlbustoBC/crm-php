@@ -87,8 +87,6 @@
         if (count($clients) > 0) {
             echo "<h2>Clientes Cargados</h2>";
             echo "<form method='POST'>";
-            echo "<input type='hidden' name='name' value='" . htmlspecialchars($_POST['name']) . "'>";
-            echo "<input type='hidden' name='lastname' value='" . htmlspecialchars($_POST['lastname']) . "'>";
             echo "<table border='1'>";
             echo "<thead>
             <tr>
@@ -112,20 +110,20 @@
 
             foreach ($clients as $index => $client) {
                 echo "<tr><td><input type='checkbox' class='checkbox_client' name='clients[]' value='$index'></td>";
-                echo "<td>" . htmlspecialchars($client[1]) . "</td>"; // company_name
-                echo "<td>" . htmlspecialchars($client[2]) . "</td>"; // domain_name
-                echo "<td>" . htmlspecialchars($client[3]) . "</td>"; // email
-                echo "<td>" . htmlspecialchars($client[4]) . "</td>"; // industry
-                echo "<td>" . htmlspecialchars($client[5]) . "</td>"; // phone
-                echo "<td>" . htmlspecialchars($client[6]) . "</td>"; // tags
-                echo "<td>" . htmlspecialchars($client[7]) . "</td>"; // address
-                echo "<td>" . htmlspecialchars($client[8]) . "</td>"; // city
-                echo "<td>" . htmlspecialchars($client[9]) . "</td>"; // state
-                echo "<td>" . htmlspecialchars($client[10]) . "</td>"; // postal code
-                echo "<td>" . htmlspecialchars($client[11]) . "</td>"; // owner
-                echo "<td>" . htmlspecialchars($client[12]) . "</td>"; // note
-                echo "<td>" . htmlspecialchars($client[13]) . "</td>"; // cuit pj
-                echo "<td>" . htmlspecialchars($client[14]) . "</td>"; // contact
+                echo "<td>" . htmlspecialchars($client[0]) . "</td>"; // company_name
+                echo "<td>" . htmlspecialchars($client[1]) . "</td>"; // domain_name
+                echo "<td>" . htmlspecialchars($client[2]) . "</td>"; // email
+                echo "<td>" . htmlspecialchars($client[3]) . "</td>"; // industry
+                echo "<td>" . htmlspecialchars($client[4]) . "</td>"; // phone
+                echo "<td>" . htmlspecialchars($client[5]) . "</td>"; // tags
+                echo "<td>" . htmlspecialchars($client[6]) . "</td>"; // address
+                echo "<td>" . htmlspecialchars($client[7]) . "</td>"; // city
+                echo "<td>" . htmlspecialchars($client[8]) . "</td>"; // state
+                echo "<td>" . htmlspecialchars($client[9]) . "</td>"; // postal code
+                echo "<td>" . htmlspecialchars($client[10]) . "</td>"; // owner
+                echo "<td>" . htmlspecialchars($client[11]) . "</td>"; // note
+                echo "<td>" . htmlspecialchars($client[12]) . "</td>"; // cuit pj
+                echo "<td>" . htmlspecialchars($client[13]) . "</td>"; // contact
                 echo "</tr>";
             }
 
@@ -145,59 +143,41 @@
     }
     ?>
 
-<?php
-if (isset($_POST['loadClients'])) {
-    $clientSelec = isset($_POST['clients']) ? $_POST['clients'] : [];
-    $name = htmlspecialchars($_POST['name']);      // Nombre del usuario
-    $lastname = htmlspecialchars($_POST['lastname']); // Apellido del usuario
+    <?php
+    if (isset($_POST['loadClients'])) {
+        $clientSelec = isset($_POST['clients']) ? $_POST['clients'] : [];
+        $name = htmlspecialchars($_POST['name']);      // Nombre del usuario
+        $lastname = htmlspecialchars($_POST['lastname']); // Apellido del usuario
 
-    if (!empty($clientSelec) && is_array($clientSelec)) {
-        // Crear directorio de logs si no existe
-        $logDirectory = 'logs/' . date('Y/m');
-        if (!file_exists($logDirectory)) {
-            mkdir($logDirectory, 0777, true);
-        }
+        if (!empty($clientSelec) && is_array($clientSelec)) {
+            // Crear directorio de logs si no existe
+            $logDirectory = 'logs/' . date('Y/m');
+            if (!file_exists($logDirectory)) {
+                mkdir($logDirectory, 0777, true); // Crea la carpeta si no existe
+            }
 
-        // Crear el archivo de log con la fecha y hora actual
-        $logFile = $logDirectory . '/log_' . date('d-m-Y_H-i-s') . '.txt';
-        $logContent = "Fecha: " . date('Y-m-d H:i:s') . "\n";
-        $logContent .= "Cantidad de registros: " . count($clientSelec) . "\n";
-        $logContent .= "Propietario: " . $_SERVER['REMOTE_ADDR'] . "\n\n";
-        $logContent .= "Nombre: " . $name . "\n";
-        $logContent .= "Apellido: " . $lastname . "\n\n";
+            // Crear el archivo de log con la fecha y hora actual
+            $logFile = $logDirectory . '/log_' . date('d-m-Y_H-i-s') . '.txt';
+            $logContent = "Fecha: " . date('Y-m-d H:i:s') . "\n";
+            $logContent .= "Cantidad de registros: " . count($clientSelec) . "\n";
+            $logContent .= "Propietario: " . $_SERVER['REMOTE_ADDR'] . "\n\n"; // IP del propietario
+            $logContent .= "Nombre: " . $name . "\n";  // Nombre del usuario
+            $logContent .= "Apellido: " . $lastname . "\n\n";  // Apellido del usuario
 
-        // Iterar sobre los clientes seleccionados
-        foreach ($clientSelec as $index) {
-            $client = $clients[$index]; // Obtener la fila del cliente correspondiente
-            
-            // Aquí agregamos los detalles de cada cliente seleccionado al archivo de log
-            $logContent .= "Nombre de la Empresa: " . htmlspecialchars($client[0]) . "\n"; // company_name
-            $logContent .= "Dominio: " . htmlspecialchars($client[1]) . "\n"; // domain_name
-            $logContent .= "Email: " . htmlspecialchars($client[2]) . "\n"; // email
-            $logContent .= "Sector: " . htmlspecialchars($client[3]) . "\n"; // industry
-            $logContent .= "Teléfono: " . htmlspecialchars($client[4]) . "\n"; // phone
-            $logContent .= "Tags: " . htmlspecialchars($client[5]) . "\n"; // tags
-            $logContent .= "Dirección: " . htmlspecialchars($client[6]) . "\n"; // address
-            $logContent .= "Ciudad: " . htmlspecialchars($client[7]) . "\n"; // city
-            $logContent .= "Estado/Región: " . htmlspecialchars($client[8]) . "\n"; // state
-            $logContent .= "Código Postal: " . htmlspecialchars($client[9]) . "\n"; // postal code
-            $logContent .= "Propietario: " . htmlspecialchars($client[10]) . "\n"; // owner
-            $logContent .= "Nota: " . htmlspecialchars($client[11]) . "\n"; // note
-            $logContent .= "CUIT PJ: " . htmlspecialchars($client[12]) . "\n"; // cuit pj
-            $logContent .= "Contactos: " . htmlspecialchars($client[13]) . "\n\n"; // contact
-        }
 
-        // Intentar escribir el contenido en el archivo
-        if (file_put_contents($logFile, $logContent) !== false) {
-            echo "<script>alert('Subida de clientes exitosa. Código 200 OK');</script>";
+            // Intentar escribir el contenido en el archivo
+            if (file_put_contents($logFile, $logContent) !== false) {
+                echo "<script>alert('Subida de clientes exitosa. Código 200 OK');</script>";
+            } else {
+                echo "<script>alert('Error al escribir el archivo de log.');</script>";
+            }
         } else {
-            echo "<script>alert('Error al escribir el archivo de log.');</script>";
+            echo "<script>alert('No se seleccionaron clientes para cargar o los datos no son válidos.');</script>";
         }
-    } else {
-        echo "<script>alert('No se seleccionaron clientes para cargar o los datos no son válidos.');</script>";
     }
-}
-?>
+    ?>
+
+
 
 
 </body>

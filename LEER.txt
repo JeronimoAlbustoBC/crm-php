@@ -13,6 +13,12 @@
 
 crear un programa donde cargue un archivo .CSV y este cargado el usuario que lo carga 
 
+debe aparecer un select donde haga un llamado a la api users y carge el id
+y otro de origen y llame a la api source, y carge el id
+
+todo esto guardarlo en un log
+
+
 boton para subir archivo, visualiza los clientes, y filtra para marcar los clientes que desea cargar, otro para marcar todos, desmarcar y un boton para aprobar, al tocar el boton debe aparecer una alerta de confirmacion de subida de archivo de clientes, y mostrar codigo 200 check
 
 cargar archivo por ip y confirmar archivo por ip 
