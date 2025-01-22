@@ -34,10 +34,71 @@
 <body>
     <h1>Cargar Clientes</h1>
     <form id="form" method="POST" enctype="multipart/form-data">
-        <label for="name">Name:</label>
-        <input type="text" name="name" required>
-        <label for="lastname">Lastname:</label>
-        <input type="text" name="lastname" required>
+        <label for="users">usuario:</label>
+        <select name="users" id="users" required>
+            <!-- Las opciones se llenarán con los datos de la API -->
+            <?php
+            // API Key para la autenticación
+            $api_key = "2|iPSNQWqfwVKJ2EMXmsvsAz6w1jrKPo6KtC2epN263a6ef49b";
+
+            // Función para hacer una llamada a la API de usuarios con cURL
+            function getUsers($api_key)
+            {
+                $url = 'https://crm.bancodecomercio.com.ar/api/users';
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    "Authorization: Bearer $api_key"
+                ));
+
+                // Ejecutar la solicitud y obtener la respuesta
+                $response = curl_exec($ch);
+
+
+                // Verificar si hubo un error en la solicitud
+                if (curl_errno($ch)) {
+                    echo "Error en cURL: " . curl_error($ch);
+                    curl_close($ch);
+                    return null; // Retorna null si hay error
+                }
+
+                curl_close($ch);
+
+                echo "<pre>Respuesta de la API: " . htmlspecialchars($response) . "</pre>";
+
+                // Decodificar la respuesta JSON
+                $data = json_decode($response, true);
+
+                // Verificar si la decodificación fue exitosa y si contiene datos esperados
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    echo "Error al decodificar JSON: " . json_last_error_msg();
+                    return null;
+                }
+
+                return $data; // Retorna los datos decodificados
+            }
+
+            // Cargar los usuarios
+            $users = getUsers($api_key);
+
+            if ($users && isset($users['data'])) { // Verificar si la clave 'data' existe en la respuesta
+                echo "<h3>Usuarios Cargados</h3>";
+                foreach ($users['data'] as $user) { // Asumimos que los usuarios están en 'data'
+                    echo "<option value='" . htmlspecialchars($user['id']) . "'>" . "</option>";
+                }
+            } else {
+                echo "<option value=''>No se pudo cargar los usuarios</option>";
+            }
+            ?>
+
+        </select>
+
+        <label for="origin">origen:</label>
+        <select name="origin" id="origin" required>
+            <!-- Las opciones se llenarán con los datos de la API -->
+
+        </select>
+
         <label for="csvFile">Seleccionar archivo CSV:</label>
         <input type="file" name="csvFile" id="csvFile" accept=".csv" required>
         <br><br>

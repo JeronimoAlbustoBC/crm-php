@@ -1,7 +1,0 @@
-Fecha: 2025-01-22 13:07:53
-Cantidad de registros: 1000
-Propietario: 10.35.67.131
-
-Nombre: 
-Apellido: 
-
