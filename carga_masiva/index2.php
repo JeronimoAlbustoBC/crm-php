@@ -27,15 +27,14 @@ if (curl_errno($ch)) {
     echo "Código de estado HTTP: $httpCode\n";
 
     if ($httpCode == 200) {
-        $data = json_decode($response, true);  
+        $data = json_decode($response, true);
         echo "<pre>";
-        print_r($data);  
+        print_r($data);
         echo "</pre>";
     } else {
         echo "Error en la solicitud. Código de estado HTTP: $httpCode\n";
-        echo "Respuesta: $response\n";  
+        echo "Respuesta: $response\n";
     }
 }
 
 curl_close($ch);
-?>
