@@ -39,7 +39,7 @@
             <!-- Las opciones se llenarán con los datos de la API -->
             <?php
             // API Key para la autenticación
-            $api_key = "2|iPSNQWqfwVKJ2EMXmsvsAz6w1jrKPo6KtC2epN263a6ef49b";
+            $api_key = "2|5YHxGRXs4t3xKWwHZgMCT5B5wDW88KMfhwD4rdkVd487d346";
 
             // Función para hacer una llamada a la API de usuarios con cURL
             function getUsers($api_key)
@@ -53,6 +53,7 @@
 
                 // Ejecutar la solicitud y obtener la respuesta
                 $response = curl_exec($ch);
+                
 
 
                 // Verificar si hubo un error en la solicitud
@@ -63,8 +64,6 @@
                 }
 
                 curl_close($ch);
-
-                echo "<pre>Respuesta de la API: " . htmlspecialchars($response) . "</pre>";
 
                 // Decodificar la respuesta JSON
                 $data = json_decode($response, true);
@@ -81,13 +80,12 @@
             // Cargar los usuarios
             $users = getUsers($api_key);
 
-            if ($users && isset($users['data'])) { // Verificar si la clave 'data' existe en la respuesta
-                echo "<h3>Usuarios Cargados</h3>";
-                foreach ($users['data'] as $user) { // Asumimos que los usuarios están en 'data'
-                    echo "<option value='" . htmlspecialchars($user['id']) . "'>" . "</option>";
+            if ($users && isset($users['data']) && count($users['data']) > 0) { // Verificar que 'data' no esté vacío
+                foreach ($users['data'] as $user) {
+                    echo "<option value='" . htmlspecialchars($user['id']) . "'>" . htmlspecialchars($user['name']) . "</option>";
                 }
             } else {
-                echo "<option value=''>No se pudo cargar los usuarios</option>";
+                echo "<option value=''>No se pudo cargar los usuarios o no hay usuarios disponibles</option>";
             }
             ?>
 
