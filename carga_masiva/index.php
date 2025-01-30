@@ -53,7 +53,7 @@
 
                 // Ejecutar la solicitud y obtener la respuesta
                 $response = curl_exec($ch);
-                
+
 
 
                 // Verificar si hubo un error en la solicitud
@@ -94,6 +94,58 @@
         <label for="origin">origen:</label>
         <select name="origin" id="origin" required>
             <!-- Las opciones se llenarán con los datos de la API -->
+
+            <?php
+            // API Key para la autenticación
+            $api_key = "2|5YHxGRXs4t3xKWwHZgMCT5B5wDW88KMfhwD4rdkVd487d346";
+
+            // Función para hacer una llamada a la API de usuarios con cURL
+            function getSource($api_key)
+            {
+                $url = 'https://crm.bancodecomercio.com.ar/api/users';
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    "Authorization: Bearer $api_key"
+                ));
+
+                // Ejecutar la solicitud y obtener la respuesta
+                $response = curl_exec($ch);
+
+
+
+                // Verificar si hubo un error en la solicitud
+                if (curl_errno($ch)) {
+                    echo "Error en cURL: " . curl_error($ch);
+                    curl_close($ch);
+                    return null; // Retorna null si hay error
+                }
+
+                curl_close($ch);
+
+                // Decodificar la respuesta JSON
+                $data = json_decode($response, true);
+
+                // Verificar si la decodificación fue exitosa y si contiene datos esperados
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    echo "Error al decodificar JSON: " . json_last_error_msg();
+                    return null;
+                }
+
+                return $data; // Retorna los datos decodificados
+            }
+
+            // Cargar los usuarios
+            $users = getUsers($api_key);
+
+            if ($users && isset($users['data']) && count($users['data']) > 0) { // Verificar que 'data' no esté vacío
+                foreach ($users['data'] as $user) {
+                    echo "<option value='" . htmlspecialchars($user['id']) . "'>" . htmlspecialchars($user['name']) . "</option>";
+                }
+            } else {
+                echo "<option value=''>No se pudo cargar los usuarios o no hay usuarios disponibles</option>";
+            }
+            ?>
 
         </select>
 
