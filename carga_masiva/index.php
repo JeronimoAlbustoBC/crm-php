@@ -33,12 +33,14 @@
 
 <body>
     <h1>Cargar Clientes</h1>
+    <?php header('Content-Type: text/html; charset=UTF-8'); ?>
     <form id="form" method="POST" enctype="multipart/form-data">
         <label for="users">usuario:</label>
         <select name="users" id="users" required>
-            <!-- Las opciones se llenarán con los datos de la API -->
+            <!-- Las opciones se llenan con los datos de la API de usuarios -->
             <?php
-            // API Key para la autenticación
+
+            //  Key para la autenticación de la API de usuarios
             $api_key = "2|5YHxGRXs4t3xKWwHZgMCT5B5wDW88KMfhwD4rdkVd487d346";
 
             // Función para hacer una llamada a la API de usuarios con cURL
@@ -51,38 +53,38 @@
                     "Authorization: Bearer $api_key"
                 ));
 
-                // Ejecutar la solicitud y obtener la respuesta
+                // Ejecutar la solicitud y obtener la respuesta de la API
                 $response = curl_exec($ch);
 
 
 
-                // Verificar si hubo un error en la solicitud
+                // Verificar si hubo un error en la solicitud a la API
                 if (curl_errno($ch)) {
                     echo "Error en cURL: " . curl_error($ch);
                     curl_close($ch);
-                    return null; // Retorna null si hay error
+                    return null; 
                 }
 
                 curl_close($ch);
 
-                // Decodificar la respuesta JSON
+                // Decodifica la respuesta de la API a JSON
                 $data = json_decode($response, true);
 
-                // Verificar si la decodificación fue exitosa y si contiene datos esperados
+                // Verificar si la decodificación fue exitosa y si contiene los datos esperados
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     echo "Error al decodificar JSON: " . json_last_error_msg();
                     return null;
                 }
 
-                return $data; // Retorna los datos decodificados
+                return $data; // devuelve los datos decodificados
             }
 
-            // Cargar los usuarios
+            // Cargar los usuarios de la funcion getUsers
             $users = getUsers($api_key);
 
-            if ($users && isset($users['data']) && count($users['data']) > 0) { // Verificar que 'data' no esté vacío
+            if ($users && isset($users['data']) && count($users['data']) > 0) {
                 foreach ($users['data'] as $user) {
-                    echo "<option value='" . htmlspecialchars($user['id']) . "'>" . htmlspecialchars($user['name']) . "</option>";
+                    echo "<option value='" . $user['id'] . "'>" . $user['name'] . "</option>";
                 }
             } else {
                 echo "<option value=''>No se pudo cargar los usuarios o no hay usuarios disponibles</option>";
@@ -92,38 +94,36 @@
         </select>
 
         <label for="origin">origen:</label>
-        <select name="origin" id="origin" required>
-            <!-- Las opciones se llenarán con los datos de la API -->
+        <select name="source" id="origin" required>
+            <!-- Las opciones se llenarán con los datos de la API de fuente/origen -->
 
             <?php
-            // API Key para la autenticación
+            // Key para la autenticación de la API de fuente/origen
             $api_key = "2|5YHxGRXs4t3xKWwHZgMCT5B5wDW88KMfhwD4rdkVd487d346";
 
-            // Función para hacer una llamada a la API de usuarios con cURL
+            // Función para hacer una llamada a la API de fuente con cURL
             function getSource($api_key)
             {
-                $url = 'https://crm.bancodecomercio.com.ar/api/users';
+                $url = 'https://crm.bancodecomercio.com.ar/api/sources';
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                     "Authorization: Bearer $api_key"
                 ));
 
-                // Ejecutar la solicitud y obtener la respuesta
+                // Ejecutar la solicitud y obtener la respuesta de la API
                 $response = curl_exec($ch);
-
-
 
                 // Verificar si hubo un error en la solicitud
                 if (curl_errno($ch)) {
                     echo "Error en cURL: " . curl_error($ch);
                     curl_close($ch);
-                    return null; // Retorna null si hay error
+                    return null;
                 }
 
                 curl_close($ch);
 
-                // Decodificar la respuesta JSON
+                // Decodificar la respuesta de la API a JSON
                 $data = json_decode($response, true);
 
                 // Verificar si la decodificación fue exitosa y si contiene datos esperados
@@ -135,15 +135,15 @@
                 return $data; // Retorna los datos decodificados
             }
 
-            // Cargar los usuarios
-            $users = getUsers($api_key);
+            // Cargar la fuente (origen) de la funcion getSource
+            $sources = getSource($api_key);
 
-            if ($users && isset($users['data']) && count($users['data']) > 0) { // Verificar que 'data' no esté vacío
-                foreach ($users['data'] as $user) {
-                    echo "<option value='" . htmlspecialchars($user['id']) . "'>" . htmlspecialchars($user['name']) . "</option>";
+            if ($sources && isset($sources['data']) && count($sources['data']) > 0) { // Verificar que 'data' no esté vacío
+                foreach ($sources['data'] as $source) {
+                    echo "<option value='" . $source['id'] . "'>" . $source['name'] . "</option>";
                 }
             } else {
-                echo "<option value=''>No se pudo cargar los usuarios o no hay usuarios disponibles</option>";
+                echo "<option value=''>No se pudo cargar las fuentes o no hay fuentes disponibles</option>";
             }
             ?>
 
@@ -257,8 +257,8 @@
     <?php
     if (isset($_POST['loadClients'])) {
         $clientSelec = isset($_POST['clients']) ? $_POST['clients'] : [];
-        $name = htmlspecialchars($_POST['name']);      // Nombre del usuario
-        $lastname = htmlspecialchars($_POST['lastname']); // Apellido del usuario
+        $userId = htmlspecialchars($_POST['users']);  // Capturar el ID del usuario
+        $originId = htmlspecialchars($_POST['source']);
 
         if (!empty($clientSelec) && is_array($clientSelec)) {
             // Crear directorio de logs si no existe
@@ -272,8 +272,9 @@
             $logContent = "Fecha: " . date('Y-m-d H:i:s') . "\n";
             $logContent .= "Cantidad de registros: " . count($clientSelec) . "\n";
             $logContent .= "Propietario: " . $_SERVER['REMOTE_ADDR'] . "\n\n"; // IP del propietario
-            $logContent .= "Nombre: " . $name . "\n";  // Nombre del usuario
-            $logContent .= "Apellido: " . $lastname . "\n\n";  // Apellido del usuario
+            $logContent .= "Usuario (ID): " . $userId . "\n";  // ID del usuario seleccionado
+            $logContent .= "Origen (ID): " . $originId . "\n";  // ID del origen seleccionado
+            
 
 
             // Intentar escribir el contenido en el archivo
