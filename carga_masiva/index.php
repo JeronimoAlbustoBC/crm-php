@@ -35,8 +35,8 @@
     <h1>Cargar Clientes</h1>
     <?php header('Content-Type: text/html; charset=UTF-8'); ?>
     <form id="form" method="POST" enctype="multipart/form-data">
-        <label for="users">usuario:</label>
-        <select name="users" id="users" required>
+        <label for="user">usuario:</label>
+        <select name="user" id="user" required>
             <!-- Las opciones se llenan con los datos de la API de usuarios -->
             <?php
 
@@ -93,8 +93,8 @@
 
         </select>
 
-        <label for="origin">origen:</label>
-        <select name="source" id="origin" required>
+        <label for="source">origen:</label>
+        <select name="source" id="source" required>
             <!-- Las opciones se llenarán con los datos de la API de fuente/origen -->
 
             <?php
@@ -257,8 +257,12 @@
     <?php
     if (isset($_POST['loadClients'])) {
         $clientSelec = isset($_POST['clients']) ? $_POST['clients'] : [];
-        $userId = htmlspecialchars($_POST['users']);  // Capturar el ID del usuario
-        $originId = htmlspecialchars($_POST['source']);
+        $userId = $_POST['user'];
+        $originId = $_POST['source'];
+
+        var_dump($userId);
+        var_dump($originId);
+
 
         if (!empty($clientSelec) && is_array($clientSelec)) {
             // Crear directorio de logs si no existe
